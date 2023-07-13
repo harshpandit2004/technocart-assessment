@@ -36,16 +36,29 @@ const invoiceSchema = new mongoose.Schema({
     required: true,
   },
   invoiceNumber: {
-    type: String,
+    type: Number,
     required: true,
   },
   invoiceAmount: {
     type: Number,
     required: true,
   },
+  financialYear: {
+    type: String,
+    required: true,
+  },
 });
 
 const Invoice = mongoose.model("Invoice", invoiceSchema);
+
+// Function to determine the financial year based on the invoice date
+function getFinancialYear(invoiceDate) {
+  const year = invoiceDate.getFullYear();
+  const month = invoiceDate.getMonth() + 1;
+  const financialYear =
+    month >= 4 ? `${year}-${year + 1}` : `${year - 1}-${year}`;
+  return financialYear;
+}
 
 app.use(express.json());
 
@@ -59,16 +72,72 @@ app.post("/invoices", async (req, res) => {
   const { invoiceDate, invoiceNumber, invoiceAmount } = req.body;
 
   // Validate the presence of all three parameters
-  if (!invoiceDate || !invoiceNumber || !invoiceAmount) {
+  if (!invoiceDate || isNaN(invoiceNumber) || !invoiceAmount) {
     return res.status(400).json({ error: "All parameters are required." });
   }
 
+  // Determine the financial year based on the invoice date
+  const financialYear = getFinancialYear(new Date(invoiceDate));
+
+  // Get the current year
+  const currentYear = new Date().getFullYear();
+
   try {
+    // Find the previous and next invoices based on the invoice number
+    const previousInvoice = await Invoice.findOne({
+      invoiceNumber: { $lt: invoiceNumber },
+    }).sort({ invoiceNumber: -1 });
+
+    let prevDate = null;
+    if (previousInvoice) {
+      prevDate = previousInvoice.invoiceDate.toISOString();
+    }
+
+    const nextInvoice = await Invoice.findOne({
+      invoiceNumber: { $gt: invoiceNumber },
+    }).sort({ invoiceNumber: 1 });
+
+    let nextDate = null;
+    if (nextInvoice) {
+      nextDate = nextInvoice.invoiceDate.toISOString();
+    }
+
+    console.log(prevDate, nextDate);
+
+    // Validate the invoice date falls within the previous and next invoice dates
+    if (prevDate > invoiceDate || nextDate < invoiceDate) {
+      return res.status(400).json({
+        error:
+          "Invoice date should be between the invoice dates of the previous and next invoice numbers.",
+      });
+    }
+
+    // Check if an invoice with the same invoice number and financial year already exists
+    const existingInvoice = await Invoice.findOne({
+      invoiceNumber,
+      financialYear,
+    });
+
+    if (existingInvoice) {
+      return res.status(409).json({
+        error:
+          "An invoice with the same invoice number and financial year already exists.",
+      });
+    }
+
+    // Check if the invoice date is within the current year
+    if (new Date(invoiceDate).getFullYear() !== currentYear) {
+      return res.status(400).json({
+        error: "Invoice date should be within the current year.",
+      });
+    }
+
     // Create a new invoice document
     const invoice = new Invoice({
       invoiceDate,
       invoiceNumber,
       invoiceAmount,
+      financialYear,
     });
 
     // Save the invoice to the database
@@ -76,7 +145,6 @@ app.post("/invoices", async (req, res) => {
 
     // Send a response
     res.json({ message: "Invoice processed and saved successfully." });
-    console.log(invoice + " processed and saved successfully.");
   } catch (error) {
     console.error("Error saving invoice:", error);
     res
