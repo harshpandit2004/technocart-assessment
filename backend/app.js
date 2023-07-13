@@ -105,11 +105,27 @@ app.post("/invoices", async (req, res) => {
     console.log(prevDate, nextDate);
 
     // Validate the invoice date falls within the previous and next invoice dates
-    if (prevDate > invoiceDate || nextDate < invoiceDate) {
-      return res.status(400).json({
-        error:
-          "Invoice date should be between the invoice dates of the previous and next invoice numbers.",
-      });
+    if (prevDate !== null && nextDate === null) {
+      if (prevDate > invoiceDate || nextDate < invoiceDate) {
+        return res.status(400).json({
+          error:
+            "Invoice date should be between the invoice dates of the previous and next invoice numbers.",
+        });
+      }
+    } else if (prevDate === null && nextDate !== null) {
+      if (prevDate > invoiceDate || nextDate < invoiceDate) {
+        return res.status(400).json({
+          error:
+            "Invoice date should be between the invoice dates of the previous and next invoice numbers.",
+        });
+      }
+    } else if (prevDate !== null || nextDate !== null) {
+      if (prevDate > invoiceDate || nextDate < invoiceDate) {
+        return res.status(400).json({
+          error:
+            "Invoice date should be between the invoice dates of the previous and next invoice numbers.",
+        });
+      }
     }
 
     // Check if an invoice with the same invoice number and financial year already exists
@@ -125,7 +141,7 @@ app.post("/invoices", async (req, res) => {
       });
     }
 
-    // Check if the invoice date is within the current year
+    // Check if the invoice date is within the current year)
     if (new Date(invoiceDate).getFullYear() !== currentYear) {
       return res.status(400).json({
         error: "Invoice date should be within the current year.",
