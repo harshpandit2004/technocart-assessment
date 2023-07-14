@@ -5,8 +5,11 @@ import Invoices from "./Components/Invoices";
 import EditInvoice from "./Components/EditInvoice";
 
 function App() {
+
+  //for viewing existing invoices
   const [dataset, setDataset] = useState([]);
 
+  //for building new invoices
   const [date, setDate] = useState("");
   const [number, setNumber] = useState("");
   const [amount, setAmount] = useState("");
@@ -30,6 +33,7 @@ function App() {
     setTempVar(!tempVar);
   };
 
+  //for editing already existing invoices
   const [id, setId] = useState("");
   const [updatedDate, setUpdatdeDate] = useState("");
   const [updatedNumber, setUpdatedNumber] = useState("");
@@ -52,6 +56,25 @@ function App() {
   };
   const updatedAmountChangeHandler = (e) => {
     setUpdatedAmount(parseInt(e.target.value));
+  };
+
+  //for deleting already existing invoices
+
+  const deleteInvoiceHandler = (id) => {
+    fetch(`http://localhost:9000/invoiceDelete/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Handle the response data
+        console.log("Invoice deleted successfully:", data);
+        // Remove the deleted invoice from the dataset
+        setDataset(dataset.filter((invoice) => invoice._id !== id));
+      })
+      .catch((error) => {
+        // Handle any errors
+        console.error("Error deleting invoice:", error);
+      });
   };
 
   useEffect(() => {
@@ -132,7 +155,7 @@ function App() {
             updateSubmitHandler={updateSubmitHandler}
           />
         </div>
-        <Invoices dataset={dataset} />
+        <Invoices dataset={dataset} deleteInvoiceHandler={deleteInvoiceHandler} />
       </header>
     </div>
   );
