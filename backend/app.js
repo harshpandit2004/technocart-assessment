@@ -65,7 +65,6 @@ app.post("/invoices", async (req, res) => {
     return res.status(400).json({ error: "All parameters are required." });
   }
 
-
   // Get the current year
   const currentYear = new Date().getFullYear();
 
@@ -122,7 +121,7 @@ app.post("/invoices", async (req, res) => {
     const existingInvoice = await Invoice.findOne({
       invoiceNumber,
       invoiceDate,
-      invoiceAmount
+      invoiceAmount,
     });
 
     if (existingInvoice) {
@@ -156,6 +155,41 @@ app.post("/invoices", async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred while saving the invoice." });
+  }
+});
+
+//endpoint to delete invoices
+app.delete("/invoiceDelete/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Find the invoice by the provided _id and delete it
+    const deletedInvoice = await Invoice.findOneAndDelete({ _id: id });
+
+    if (!deletedInvoice) {
+      return res.status(404).json({ error: "Invoice not found." });
+    }
+
+    res.json({ message: "Invoice deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting invoice:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the invoice." });
+  }
+});
+
+
+app.get("/invoiceGet", async (req, res) => {
+  try {
+    // passing in all of the database entries
+    const invoices = await Invoice.find({});
+    res.json(invoices);
+  } catch (error) {
+    console.error("Error getting invoices:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while getting the invoices." });
   }
 });
 
