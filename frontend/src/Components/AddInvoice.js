@@ -2,7 +2,8 @@ import React from "react";
 
 export default function AddInvoice(props) {
   return (
-    <div>
+    <div className="AddInvoice">
+        <h3>Add Invoice</h3>
       <input
         type="date"
         placeholder="Invoice Date"
@@ -21,7 +22,7 @@ export default function AddInvoice(props) {
         onChange={props.amountChangeHandler}
         value={props.amount}
       />
-      <button onClick={props.submitHandler}>Submit</button>
+      <button onClick={props.submitHandler} className="AddInvoiceSubmit">Submit</button>
     </div>
   );
 }
