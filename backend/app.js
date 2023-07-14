@@ -171,6 +171,7 @@ app.delete("/invoiceDelete/:id", async (req, res) => {
     }
 
     res.json({ message: "Invoice deleted successfully." });
+    console.log("Invoice deleted successfully.");
   } catch (error) {
     console.error("Error deleting invoice:", error);
     res
@@ -179,6 +180,31 @@ app.delete("/invoiceDelete/:id", async (req, res) => {
   }
 });
 
+// Endpoint to handle PATCH requests for invoices
+app.patch("/invoiceUpdate/:id", async (req, res) => {
+  const { id } = req.params;
+  const { invoiceDate, invoiceAmount, invoiceNumber } = req.body;
+
+  try {
+    // Find the invoice by the provided invoice number and update its data
+    const updatedInvoice = await Invoice.findOneAndUpdate(
+      { _id: id },
+      { invoiceDate: invoiceDate, invoiceAmount: invoiceAmount, invoiceNumber: invoiceNumber },
+      { new: true }
+    );
+
+    if (!updatedInvoice) {
+      return res.status(404).json({ error: "Invoice not found." });
+    }
+
+    res.json({ message: "Invoice updated successfully.", updatedInvoice });
+  } catch (error) {
+    console.error("Error updating invoice:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the invoice." });
+  }
+});
 
 app.get("/invoiceGet", async (req, res) => {
   try {
