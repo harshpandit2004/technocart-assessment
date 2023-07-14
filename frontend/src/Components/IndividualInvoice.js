@@ -10,12 +10,14 @@ export default function IndividualInvoice(props) {
       : "";
 
   return (
-    <div className="card">
-      <div>Invoice Date: {formattedDate}</div>
-      <div>Invoice Number: {props.invoice.invoiceNumber}</div>
-      <div>Invoice Amount: {props.invoice.invoiceAmount}</div>
-      <div>Invoice ID: {props.invoice._id}</div>
-      <button onClick={props.deleteInvoiceHandler}>Delete this invoice</button>
-    </div>
+    <tr className="individualInvoice">
+      <td>{formattedDate}</td>
+      <td>{props.invoice.invoiceNumber}</td>
+      <td>{props.invoice.invoiceAmount}</td>
+      <td>{props.invoice._id}</td>
+      <td>
+        <button onClick={() => props.deleteInvoiceHandler(props.invoice._id)}>Delete this invoice</button>
+      </td>
+    </tr>
   );
 }

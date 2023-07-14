@@ -99,6 +99,11 @@ code {
   border: 1px solid white;
   margin: .5rem;
   border-radius: .5rem;
+  padding: 1rem;
+}
+.individualInvoice{
+  border-top: 1px solid white;
+  font-size: small;
 }
 .manipulation{
   display: flex;
@@ -108,4 +113,3 @@ code {
   margin-top: 1rem;
   width: 80vw;
 }
-

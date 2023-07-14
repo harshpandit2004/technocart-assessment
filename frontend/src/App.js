@@ -5,7 +5,6 @@ import Invoices from "./Components/Invoices";
 import EditInvoice from "./Components/EditInvoice";
 
 function App() {
-
   //for viewing existing invoices
   const [dataset, setDataset] = useState([]);
 
@@ -61,7 +60,7 @@ function App() {
   //for deleting already existing invoices
 
   const deleteInvoiceHandler = (id) => {
-    fetch(`http://localhost:9000/invoiceDelete/${id}`, {
+    fetch(`https://poised-jade-crane.cyclic.app/invoiceDelete/${id}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
@@ -74,19 +73,20 @@ function App() {
       .catch((error) => {
         // Handle any errors
         console.error("Error deleting invoice:", error);
+        alert("Error deleting invoice. Please try again later.");
       });
   };
 
   useEffect(() => {
     console.log("useEffect called");
 
-    fetch("http://localhost:9000/invoiceGet")
+    fetch("https://poised-jade-crane.cyclic.app/invoiceGet")
       .then((res) => res.json())
       .then((data) => setDataset(data))
       .catch((err) => console.log(err));
 
     if (updatedDate !== "" && updatedNumber !== "" && updatedAmount !== "") {
-      fetch("http://localhost:9000/invoiceUpdate/" + id, {
+      fetch("https://poised-jade-crane.cyclic.app/invoiceUpdate/" + id, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -105,11 +105,12 @@ function App() {
         .catch((error) => {
           // Handle any errors
           console.error("Error updating invoice:", error);
+          alert("Error updating invoice. Please try again later.");
         });
     }
 
     if (date !== "" && number !== "" && amount !== "") {
-      fetch("http://localhost:9000/invoices", {
+      fetch("https://poised-jade-crane.cyclic.app/invoices", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,7 +123,10 @@ function App() {
       })
         .then((res) => res.json())
         .then((data) => console.log(data))
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          alert(err);
+        });
     } else if (date === "" && number === "" && amount === "") {
       console.log("incorrect or incomplete information");
     } else {
@@ -155,7 +159,10 @@ function App() {
             updateSubmitHandler={updateSubmitHandler}
           />
         </div>
-        <Invoices dataset={dataset} deleteInvoiceHandler={deleteInvoiceHandler} />
+        <Invoices
+          dataset={dataset}
+          deleteInvoiceHandler={deleteInvoiceHandler}
+        />
       </header>
     </div>
   );

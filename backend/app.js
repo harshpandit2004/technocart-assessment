@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const MONGOURI =
   "mongodb+srv://harshpandit2004:harambedidnothingwrong@technokartbank.lutnaox.mongodb.net/";
 
-const port = 9000;
+const port = process.env.PORT || 9000;
 
 // CORS middleware
 app.use(function (req, res, next) {
