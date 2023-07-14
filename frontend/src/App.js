@@ -1,7 +1,11 @@
 import "./App.css";
 import React, { useEffect, useState } from "react";
+import AddInvoice from "./Components/AddInvoice";
+import Invoices from "./Components/Invoices";
 
 function App() {
+  const [dataset, setDataset] = useState([]);
+
   const [date, setDate] = useState("");
   const [number, setNumber] = useState("");
   const [amount, setAmount] = useState("");
@@ -20,12 +24,18 @@ function App() {
     // console.log(typeof(parseInt(e.target.value))); // number
   };
 
-const submitHandler = () => {
-  setTempVar(!tempVar);
-}
+  const submitHandler = () => {
+    setTempVar(!tempVar);
+  };
 
   useEffect(() => {
     console.log("useEffect called");
+
+    fetch("http://localhost:9000/invoiceGet")
+      .then((res) => res.json())
+      .then((data) => setDataset(data))
+      .catch((err) => console.log(err));
+
     if (date !== "" && number !== "" && amount !== "") {
       fetch("http://localhost:9000/invoices", {
         method: "POST",
@@ -41,35 +51,26 @@ const submitHandler = () => {
         .then((res) => res.json())
         .then((data) => console.log(data))
         .catch((err) => console.log(err));
-    }else if(date === "" && number === "" && amount === ""){
-      console.log("incorrect or incomplete information")
-    }else{
-      console.log("this SHOULD never happen")
+    } else if (date === "" && number === "" && amount === "") {
+      console.log("incorrect or incomplete information");
+    } else {
+      console.log("this SHOULD never happen");
     }
   }, [tempVar]);
 
   return (
     <div className="App">
       <header className="App-header">
-        <input
-          type="date"
-          placeholder="Invoice Date"
-          onChange={dateChangeHandler}
-          value={date}
+        <AddInvoice
+          date={date}
+          number={number}
+          amount={amount}
+          dateChangeHandler={dateChangeHandler}
+          numberChangeHandler={numberChangeHandler}
+          amountChangeHandler={amountChangeHandler}
+          submitHandler={submitHandler}
         />
-        <input
-          type="number"
-          placeholder="Invoice Number"
-          onChange={numberChangeHandler}
-          value={number}
-        />
-        <input
-          type="number"
-          placeholder="Invoice Amount"
-          onChange={amountChangeHandler}
-          value={amount}
-        />
-        <button onClick={submitHandler}>Submit</button>
+        <Invoices dataset={dataset} />
       </header>
     </div>
   );
